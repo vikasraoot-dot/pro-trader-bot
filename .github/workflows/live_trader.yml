@@ -3,7 +3,6 @@ name: Live Trader (Self-Hosted)
 on:
   workflow_dispatch:
   schedule:
-    # Every 2 minutes, Mon–Fri. The bot will act only during RTH and on closed bars.
     - cron: "*/2 * * * 1-5"
 
 permissions:
@@ -17,37 +16,23 @@ jobs:
   trade:
     runs-on: [self-hosted, windows]
     env:
-      # Make top-level "src" importable
       PYTHONPATH: ${{ github.workspace }}
-
-      # Your Alpaca paper creds (you created these as repo Secrets)
       ALPACA_KEY: ${{ secrets.ALPACA_KEY }}
       ALPACA_SECRET: ${{ secrets.ALPACA_SECRET }}
-
-      # Not secret; set as repo Variable
       APCA_BASE_URL: ${{ vars.APCA_BASE_URL }}
       TICKERS: ${{ vars.TICKERS }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       CONFIG_PATH: ${{ vars.CONFIG_PATH }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ vars.PY_VERSION }}
+      - name: Show Python
+        run: |
+          python --version
+          where python
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Install dependencies
+      - name: Install deps
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
