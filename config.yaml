@@ -1,1 +1,62 @@
+general:
+  timezone: "America/New_York"
+  seed: 42
+  rth_only: true
+  bar_timeframe: "15m"
+  htf_timeframe: "60m"
+  flatten_minutes_before_close: 7
+  bar_close_grace_sec: 10
+
+universe:
+  min_price: 5.0
+  min_dollar_vol_20d: 5_000_000  # 5M
+  exclude: []   # e.g., ["OTC:..."]
+
+strategy:
+  ema_fast: 9
+  ema_slow: 21
+  adx_len: 14
+  rsi_len: 14
+  ema_slope_bps: 12      # min slope (bps) over 3 bars
+  adx_min: 22
+  rsi_min: 50
+  rsi_max: 75
+  htf_align_required: true
+
+regime:
+  trend_adx_min: 20
+  chop_adx_max: 15
+  high_vol_mult: 2.0     # 30m ATR% vs 60d median
+
+risk:
+  account_risk_per_trade: 0.005   # 0.5%
+  atr_k_stop: 1.5
+  take_profit_R: 1.3
+  be_bump_at_R: 0.5
+  partial_take_R: 1.0
+  partial_take_pct: 0.5
+  commission_bps: 1.0
+  slippage_bps: 2.0
+  min_notional: 200.0
+  max_position_pct: 0.10
+  max_net_exposure_pct: 0.60
+  max_sector_pct: 0.25
+  max_daily_loss_pct: 0.02
+  max_concurrent_positions: 3
+  symbol_cooloff_min: 45
+  spread_bps_max: 15
+
+portfolio:
+  correlation_block_threshold: 0.85   # throttle similar names
+  sector_map: {}  # optional symbol->sector override
+
+execution:
+  time_in_force: "day"
+  allow_short: false
+
+reporting:
+  enable_daily_email: false
+  email_to: []
+  slack_webhook: ""
+  outdir: "reports"
 
