@@ -3,7 +3,8 @@ name: Daily Report (Self-Hosted)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "10 20 * * 1-5"  # ~16:10 ET (adjust for DST if you prefer)
+    # ~16:10 ET during Daylight Time (20:10 UTC). Adjust for DST if needed.
+    - cron: "10 20 * * 1-5"
 
 permissions:
   contents: read
@@ -20,12 +21,13 @@ jobs:
       ALPACA_KEY: ${{ secrets.ALPACA_KEY }}
       ALPACA_SECRET: ${{ secrets.ALPACA_SECRET }}
       APCA_BASE_URL: ${{ vars.APCA_BASE_URL }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       TICKERS: ${{ vars.TICKERS }}
       CONFIG_PATH: ${{ vars.CONFIG_PATH }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Show Python
         run: |
@@ -38,7 +40,6 @@ jobs:
           PIP_ONLY_BINARY: ":all:"
         run: |
           python -m pip install --upgrade pip wheel setuptools
-          pip install --only-binary=:all: numpy==1.26.4 pandas==2.2.2
           pip install --only-binary=:all: -r requirements.txt
 
       - name: Generate daily report
