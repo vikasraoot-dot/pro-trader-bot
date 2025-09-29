@@ -3,7 +3,6 @@ name: Daily Report (Self-Hosted)
 on:
   workflow_dispatch:
   schedule:
-    # ~16:10 ET during Daylight Time (20:10 UTC). Adjust for DST if needed.
     - cron: "10 20 * * 1-5"
 
 permissions:
@@ -46,7 +45,7 @@ jobs:
         run: |
           python scripts/daily_report.py --config "${{ env.CONFIG_PATH }}"
 
-      - name: Upload report artifacts
+      - name: Upload daily report
         uses: actions/upload-artifact@v4
         with:
           name: daily-report
