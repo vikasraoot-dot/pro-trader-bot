@@ -3,10 +3,6 @@ name: Backtest (Self-Hosted)
 on:
   workflow_dispatch:
     inputs:
-      tickers:
-        description: "Comma-separated tickers"
-        required: true
-        default: "NVDA,MSFT,AMD"
       start:
         description: "Start date (YYYY-MM-DD)"
         required: true
@@ -29,10 +25,9 @@ jobs:
     env:
       PYTHONPATH: ${{ github.workspace }}
       CONFIG_PATH: ${{ vars.CONFIG_PATH }}
-      # ✅ Add Alpaca creds so the backtest uses Alpaca Market Data
+      # Use Alpaca Market Data for backtests
       ALPACA_KEY: ${{ secrets.ALPACA_KEY }}
       ALPACA_SECRET: ${{ secrets.ALPACA_SECRET }}
-      # Optional but fine to include:
       APCA_BASE_URL: ${{ vars.APCA_BASE_URL }}
 
     steps:
@@ -52,9 +47,14 @@ jobs:
           python -m pip install --upgrade pip wheel setuptools
           pip install --only-binary=:all: -r requirements.txt
 
-      - name: Run backtest
+      - name: Show tickers.txt
         run: |
-          python scripts/backtest.py --config "${{ env.CONFIG_PATH }}" --tickers "${{ github.event.inputs.tickers }}" --start "${{ github.event.inputs.start }}" --end "${{ github.event.inputs.end }}"
+          echo "tickers.txt contents:"
+          type tickers.txt
+
+      - name: Run backtest (tickers from tickers.txt)
+        run: |
+          python scripts/backtest.py --config "${{ env.CONFIG_PATH }}" --start "${{ github.event.inputs.start }}" --end "${{ github.event.inputs.end }}"
 
       - name: Upload backtest artifacts
         uses: actions/upload-artifact@v4
