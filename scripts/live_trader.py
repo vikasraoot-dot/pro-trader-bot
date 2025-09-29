@@ -10,8 +10,7 @@ from src.logging_utils import get_logger
 from src.oms import OMS
 from src.utils import read_tickers_file
 
-
-# --- local timeframe helpers (independent from calendar.py internals) ---
+# --- timeframe helpers ---
 _MIN_RE = re.compile(r"^(\d+)\s*[mM]$")
 _HOUR_RE = re.compile(r"^(\d+)\s*[hH]$")
 _DAY_RE = re.compile(r"^(\d+)\s*[dD]$")
@@ -69,17 +68,12 @@ def main():
     grace = int(cfg.general.bar_close_grace_sec)
     rth_only = bool(getattr(cfg.general, "rth_only", True))
 
-    # Boot banner
     logger.info({"event": "boot", "tz": tz, "bar": bar, "grace_sec": grace, "rth_only": rth_only})
 
-    # Long-lived loop: from now until market close (or 16:10 ET if rth_only)
-    # We wake right after each bar closes.
     step = _parse_timeframe(bar)
-
-    # OMS instance (reused across cycles)
     oms = OMS(cfg, logger=logger)
 
-    # simple guard to avoid infinite runs overnight: stop after ~8.5h of RTH + buffer
+    # stop after ~10 hours so the job doesn't run forever
     hard_stop_at = pd.Timestamp.now(tz=tz) + pd.Timedelta(hours=10)
 
     while True:
@@ -88,58 +82,4 @@ def main():
             logger.info({"event": "shutdown", "reason": "hard_stop_reached"})
             return 0
 
-        # compute current/next bar close time
-        slot_start = _floor_timestamp(now, step)
-        bar_close_time = slot_start + step + pd.Timedelta(seconds=grace)
-
-        # if we woke before close, sleep until close (with 1s buffer loop)
-        if now < bar_close_time:
-            # one-time message at start of sleep
-            sleep_sec = max(1, int((bar_close_time - now).total_seconds()))
-            logger.debug({"event": "sleep_until_close", "wake_at": str(bar_close_time), "sleep_sec": sleep_sec})
-            # sleep in small chunks so job can be cancelled quickly
-            remaining = sleep_sec
-            while remaining > 0:
-                t = min(5, remaining)
-                time.sleep(t)
-                remaining -= t
-            continue
-
-        # bar is closed -> run one trade cycle
-        try:
-            tickers = read_tickers_file("tickers.txt")
-            logger.info({"event": "cycle_start", "at": str(now), "tickers": tickers})
-
-            result = oms.trade_cycle(verbose_symbol_logs=True, tickers_override=tickers)
-
-            # Summarize
-            candidates = result.get("candidates", [])
-            orders = result.get("orders", [])
-            positions = result.get("positions", [])
-            skipped = result.get("skipped", [])  # liquidity/empty/etc.
-
-            logger.info(
-                {
-                    "event": "cycle_done",
-                    "at": str(pd.Timestamp.now(tz=tz)),
-                    "candidates_found": len(candidates),
-                    "orders_placed": len(orders),
-                    "open_positions": len(positions),
-                    "skipped_symbols": len(skipped),
-                }
-            )
-
-        except Exception as e:
-            logger.error({"event": "loop_exception", "error": str(e)})
-            traceback.print_exc()
-            # brief backoff then continue (don’t kill the long-lived run)
-            time.sleep(5)
-
-        # loop will compute next bar boundary and repeat
-
-    # unreachable
-    # return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+        # compute current bar close time
