@@ -31,18 +31,21 @@ jobs:
       CONFIG_PATH: ${{ vars.CONFIG_PATH }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Show Python
         run: |
+          whoami
           python --version
           where python
 
-      - name: Install deps
+      - name: Install deps (binary wheels only)
+        env:
+          PIP_ONLY_BINARY: ":all:"
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip wheel setuptools
+          pip install --only-binary=:all: numpy==1.26.4 pandas==2.2.2
+          pip install --only-binary=:all: -r requirements.txt
 
       - name: Run backtest
         run: |
