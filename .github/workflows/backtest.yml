@@ -10,11 +10,11 @@ on:
       start:
         description: "Start date (YYYY-MM-DD)"
         required: true
-        default: "2024-01-01"
+        default: "2025-01-01"
       end:
         description: "End date (YYYY-MM-DD)"
         required: true
-        default: "2024-12-31"
+        default: "2025-09-25"
 
 permissions:
   contents: read
@@ -29,6 +29,11 @@ jobs:
     env:
       PYTHONPATH: ${{ github.workspace }}
       CONFIG_PATH: ${{ vars.CONFIG_PATH }}
+      # ✅ Add Alpaca creds so the backtest uses Alpaca Market Data
+      ALPACA_KEY: ${{ secrets.ALPACA_KEY }}
+      ALPACA_SECRET: ${{ secrets.ALPACA_SECRET }}
+      # Optional but fine to include:
+      APCA_BASE_URL: ${{ vars.APCA_BASE_URL }}
 
     steps:
       - name: Checkout
