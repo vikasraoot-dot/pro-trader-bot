@@ -1,12 +1,10 @@
 # Broker + data
 alpaca-py==0.21.0
 
-# --- NUMPY / PANDAS: version-aware pins (binary wheels exist for these) ---
-# Py < 3.13
+# --- NUMPY / PANDAS: version-aware pins (wheels for 3.13+ as well) ---
 numpy==1.26.4; python_version < "3.13"
 pandas==2.2.2; python_version < "3.13"
 
-# Py >= 3.13
 numpy>=2.1; python_version >= "3.13"
 pandas>=2.2.3; python_version >= "3.13"
 
@@ -18,5 +16,5 @@ requests==2.32.3
 PyYAML==6.0.2
 yfinance==0.2.40
 
-# Optional (commented out to avoid extra wheels):
+# Optional (commented to keep deps lean on Windows runner):
 # pandas_market_calendars==4.4.2
