@@ -3,7 +3,6 @@ name: Live Trader (Self-Hosted)
 on:
   workflow_dispatch:
   schedule:
-    # Runs every 2 minutes on weekdays; bot itself acts only during RTH on closed bars.
     - cron: "*/2 * * * 1-5"
 
 permissions:
@@ -18,10 +17,8 @@ jobs:
     runs-on: [self-hosted, windows]
     env:
       PYTHONPATH: ${{ github.workspace }}
-      # Alpaca creds (your naming)
       ALPACA_KEY: ${{ secrets.ALPACA_KEY }}
       ALPACA_SECRET: ${{ secrets.ALPACA_SECRET }}
-      # Not secret
       APCA_BASE_URL: ${{ vars.APCA_BASE_URL }}
       TICKERS: ${{ vars.TICKERS }}
       CONFIG_PATH: ${{ vars.CONFIG_PATH }}
