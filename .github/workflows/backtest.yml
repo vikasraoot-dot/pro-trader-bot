@@ -21,18 +21,16 @@ concurrency:
 
 jobs:
   backtest:
-    runs-on: [self-hosted, windows]
+    runs-on: self-hosted   # ← loosened from [self-hosted, windows]
     env:
       PYTHONPATH: ${{ github.workspace }}
       CONFIG_PATH: ${{ vars.CONFIG_PATH }}
-      # Use Alpaca Market Data for backtests
       ALPACA_KEY: ${{ secrets.ALPACA_KEY }}
       ALPACA_SECRET: ${{ secrets.ALPACA_SECRET }}
       APCA_BASE_URL: ${{ vars.APCA_BASE_URL }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Show Python
         run: |
