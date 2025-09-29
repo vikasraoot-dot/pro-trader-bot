@@ -61,6 +61,6 @@ reporting:
   outdir: "reports"
 
 data:
-  provider: "auto"   # "auto" tries Alpaca first if keys exist; else yfinance
+  provider: "alpaca"   # "auto" tries Alpaca first if keys exist; else yfinance
   http_proxy: ""     # if your network needs proxies for Yahoo fallback
   https_proxy: ""
