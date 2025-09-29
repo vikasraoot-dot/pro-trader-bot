@@ -1,9 +1,14 @@
 # Broker + data
 alpaca-py==0.21.0
 
-# Core stack (wheel-friendly versions for Windows + Python 3.11)
-numpy==1.26.4
-pandas==2.2.2
+# --- NUMPY / PANDAS: version-aware pins (binary wheels exist for these) ---
+# Py < 3.13
+numpy==1.26.4; python_version < "3.13"
+pandas==2.2.2; python_version < "3.13"
+
+# Py >= 3.13
+numpy>=2.1; python_version >= "3.13"
+pandas>=2.2.3; python_version >= "3.13"
 
 # Utilities
 pydantic==2.8.2
@@ -13,6 +18,5 @@ requests==2.32.3
 PyYAML==6.0.2
 yfinance==0.2.40
 
-# OPTIONAL:
-# If you want the full NYSE holiday calendar, uncomment the line below AND the calendar code path.
+# Optional (commented out to avoid extra wheels):
 # pandas_market_calendars==4.4.2
