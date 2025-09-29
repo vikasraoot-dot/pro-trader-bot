@@ -20,7 +20,6 @@ jobs:
       ALPACA_KEY: ${{ secrets.ALPACA_KEY }}
       ALPACA_SECRET: ${{ secrets.ALPACA_SECRET }}
       APCA_BASE_URL: ${{ vars.APCA_BASE_URL }}
-      TICKERS: ${{ vars.TICKERS }}
       CONFIG_PATH: ${{ vars.CONFIG_PATH }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
@@ -41,6 +40,11 @@ jobs:
           python -m pip install --upgrade pip wheel setuptools
           pip install --only-binary=:all: -r requirements.txt
 
-      - name: Run live trader (one cycle)
+      - name: Show tickers.txt
+        run: |
+          echo "tickers.txt contents:"
+          type tickers.txt
+
+      - name: Run live trader (one cycle; tickers from tickers.txt)
         run: |
           python scripts/live_trader.py --config "${{ env.CONFIG_PATH }}"
