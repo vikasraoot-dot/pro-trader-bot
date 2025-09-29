@@ -17,7 +17,11 @@ class BacktestEngine:
             return pd.Series(dtype=float), pd.DataFrame()
 
         sig = compute_signals(df, self.cfg)
-        a = atr(df, 14).fillna(method="bfill").fillna(method="ffill")
+
+        # Replace fillna(method=...) with bfill()/ffill() to avoid FutureWarning
+        a = atr(df, 14)
+        a = a.bfill().ffill()
+
         _ = estimate_spread_bps(df)  # retained hook
 
         eq = [1.0]; pos = 0; entry=0; stop=0; tp=0
@@ -51,6 +55,7 @@ class BacktestEngine:
                 pos = 1
 
         equity_curve = pd.Series(eq, index=df.index[:len(eq)])
+
         import pandas as _pd
         trade_log = _pd.DataFrame(trades)
         return equity_curve, trade_log
@@ -66,10 +71,12 @@ class BacktestEngine:
                 tl["symbol"] = sym
                 logs.append(tl)
         if curves:
-            aligned = pd.concat(curves, axis=1).fillna(method="ffill").fillna(1.0)
+            # Replace fillna(method="ffill") with ffill()
+            aligned = pd.concat(curves, axis=1).ffill().fillna(1.0)
             eq_total = aligned.mean(axis=1)
         else:
             eq_total = pd.Series(dtype=float)
+
         import pandas as _pd
         trade_log = _pd.concat(logs, ignore_index=True) if logs else _pd.DataFrame()
         return eq_total, trade_log
